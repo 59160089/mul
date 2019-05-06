@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Zombie Dungeon 1</title>
+    <script type="text/javascript" src="simpleGame.js"></script>
+    <script type="text/javascript">
+
+        var zombie
+        var game
+        var stair
+        var character
+        var bulletItem
+
+
+        var numZombie = 10;
+        var numBullet = 0;
+
+        BulletItem = function () {
+            bl = new Sprite(game, 'item_bullet.png', 25, 25)
+            bl.setSpeed(0)
+            bl.setPosition(Math.random() * 800, Math.random() * 600)
+
+            return bl
+        }
+
+        function checkLose () {
+
+            for (let i = 0 ; i < numZombie ; i++) {
+               if( zombie[i].distanceTo(character) < 22){
+                   alert('YOU LOST')
+                   setupZombie()
+                   document.location.href = "";
+               }
+            }
+
+        }
+
+
+        Stair = function () {
+            ts = new Sprite(game, '36310-7-cave-transparent-background.png', 50, 50)
+            ts.setSpeed(0)
+            ts.setPosition(Math.random() * 800, Math.random() * 600)
+
+            return ts
+        }
+
+
+        Character = function () {
+            let nameCycle = ['down', 'up', 'left', 'right']
+            tc = new Sprite(game, 'rpg_sprite_walk.png', 192, 128)
+            tc.loadAnimation(192, 128, 24, 32)
+            tc.generateAnimationCycles()
+            tc.renameCycles(nameCycle)
+            tc.setPosition(200, 200)
+            tc.setSpeed(0)
+            tc.pauseAnimation()
+
+           
+            return tc
+        }
+
+        function setupZombie() {
+            console.log(numZombie)
+            zombie = null
+            zombie = new Array(numZombie)
+            for (let i = 0; i < numZombie; i++) {
+                zombie[i] = new Zombie()
+            }
+        }
+
+        function updateZombie() {
+            for (let i = 0; i < numZombie; i++) {
+                zombie[i].update()
+            }
+        }
+
+
+        randomAngle = function () {
+            return Math.floor(Math.random() * 4)
+        }
+
+        Zombie = function () {
+            let nameCycle = ['down', 'up', 'left', 'right']
+            tzom = new Sprite(game, 'rpg_sprite_zombie.png', 192, 128)
+            tzom.setSpeed(0)
+
+            tzom.setPosition(Math.random() * 800, Math.random() * 600)
+           // tzom.setPosition(215,215)
+            tzom.loadAnimation(192, 128, 24, 32)
+            tzom.generateAnimationCycles()
+            tzom.pauseAnimation()
+            tzom.renameCycles(nameCycle)
+
+            let Angle = randomAngle()
+            //console.log(Angle)
+            if (Angle == 0) {
+                tzom.setMoveAngle(180)
+                tzom.setSpeed(1)
+                tzom.playAnimation()
+                tzom.setCurrentCycle('down')
+            } else if (Angle == 1) {
+                tzom.setMoveAngle(0)
+                tzom.setSpeed(1)
+                tzom.playAnimation()
+                tzom.setCurrentCycle('up')
+            } else if (Angle == 2) {
+                tzom.setMoveAngle(270)
+                tzom.setSpeed(1)
+                tzom.playAnimation()
+                tzom.setCurrentCycle('left')
+            } else if (Angle == 3) {
+                tzom.setMoveAngle(90)
+                tzom.setSpeed(1)
+                tzom.playAnimation()
+                tzom.setCurrentCycle('right')
+            }
+           
+            while(true){
+                if(!tzom.collidesWith(character)){
+                    break
+                }else {
+                    tzom.setPosition(Math.random() * 800, Math.random() * 600)
+                }
+            }
+
+            tzom.kob = function () {
+                console.log(tzom.x)
+                if(tzom.x == game.width - 10){
+                    tzom.setMoveAngle(270)
+                tzom.setSpeed(1)
+                tzom.playAnimation()
+                tzom.setCurrentCycle('left')
+                    console.log('ei')
+                }
+                
+            }
+
+            return tzom
+        }
+
+
+        function init() {
+            game = new Scene()
+            bulletItem = new BulletItem()
+            character = new Character()
+            stair = new Stair()
+            background = new Sprite(game, 'texture800oooo.png', 800, 600)
+            background.setSpeed(0, 0)
+            background.setPosition(400, 300)
+            setupZombie()
+            
+            game.start()
+        }
+
+
+
+        function update() {
+            game.clear()
+            background.update()
+            bulletItem.update()
+            stair.update()
+            updateZombie()
+            character.update()
+            checkLose()
+            move()
+            zombieAiKob()
+        }
+
+        function zombieAiKob () {
+            for(let i = 0 ; i < numZombie ; i ++) {
+            zombie[i].kob()
+            }
+        }
+
+        function move() {
+            if (keysDown[K_LEFT]) {
+                character.setSpeed(2);
+                character.setMoveAngle(270)
+                character.playAnimation()
+                character.setCurrentCycle('left')
+            } else if (keysDown[K_RIGHT]) {
+                character.setSpeed(2);
+                character.setMoveAngle(90)
+                character.playAnimation()
+                character.setCurrentCycle('right')
+            } else if (keysDown[K_UP]) {
+                character.setSpeed(2);
+                character.setMoveAngle(0)
+                character.playAnimation()
+                character.setCurrentCycle('up')
+            } else if (keysDown[K_DOWN]) {
+                character.setSpeed(2);
+                character.setMoveAngle(180)
+                character.playAnimation()
+                character.setCurrentCycle('down')
+            } else if (keysDown[K_SPACE]) {
+                character.setSpeed(0)
+                character.pauseAnimation();
+                character.setCurrentCycle("down");
+            }
+        }
+    </script>
+</head>
+
+<body onload="init()">
+    <div id='numZom'> numZombie : </div>
+</body>
+
+</html>
